@@ -12,33 +12,37 @@ struct SuccessModal: View {
     let nextAction: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("¡Correcto!") // Mensaje de éxito
-                .font(.title)
-                .bold()
+        ZStack {
+            Color.white.opacity(0.9) // Fondo semi-transparente
+                .edgesIgnoringSafeArea(.all)
 
-            Text("Nivel \(level)") // Nivel alcanzado
-                .font(.largeTitle)
-                .foregroundColor(.blue)
-                .scaleEffect(1.1)
-                .shadow(radius: 5)
-
-            Button(action: {
-                nextAction() // Se ejecuta inmediatamente sin transiciones visibles
-            }) {
-                Text("Siguiente Nivel")
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+            VStack(spacing: 20) {
+                Text("¡Correcto!")
+                    .font(.largeTitle)
+                    .bold()
+                    .foregroundColor(.blue)
+                
+                Text("Nivel \(level)")
+                    .font(.title)
+                    .foregroundColor(.black)
+                
+                Button(action: nextAction) {
+                    Text("Siguiente Nivel")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(width: 200)
+                        .background(Color.green)
+                        .cornerRadius(10)
+                }
             }
-            .padding(.horizontal)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(20)
+            .shadow(radius: 10)
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(20)
-        .shadow(radius: 10)
+        .transition(.opacity)
+        .animation(.easeInOut, value: 1)
     }
 }
 

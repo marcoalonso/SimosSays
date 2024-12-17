@@ -16,36 +16,30 @@
 //
 
 import SwiftUI
+import AVFoundation
 
-/// `GameViewModel` gestiona la lógica principal del juego Simon Says.
+/// ViewModel que controla la lógica del juego Simon Says.
 class GameViewModel: ObservableObject {
-    // MARK: - Propiedades Publicadas
-    @Published var colorSequence: [ColorOption] = []  // Secuencia generada por el juego
-    @Published var userSequence: [ColorOption] = []   // Secuencia ingresada por el jugador
+    @Published var colorSequence: [ColorOption] = []       // Secuencia generada por el juego
+    @Published var userSequence: [ColorOption] = []        // Secuencia ingresada por el usuario
     @Published var currentHighlightedColor: ColorOption? = nil // Color actualmente resaltado
-    @Published var level: Int = 1                    // Nivel actual del juego
-    @Published var isGameOver: Bool = false          // Estado de Game Over
-    @Published var isShowingSuccessModal: Bool = false // Modal de éxito
-    @Published var score: Int = 0                    // Puntuación del jugador
-    @Published var isPlayingSequence: Bool = false   // Indica si se está reproduciendo la secuencia
-
-    // MARK: - Métodos Públicos
+    @Published var level: Int = 1                         // Nivel actual
+    @Published var isGameOver: Bool = false               // Estado de Game Over
+    @Published var isShowingSuccessModal: Bool = false    // Modal de éxito
+    @Published var isPlayingSequence: Bool = false        // Indica si la secuencia está en reproducción
+    @Published var score: Int = 0                         // Puntuación del usuario
+    @Published var circleBackgroundColor: Color = .blue   // Color del círculo que indica el nivel
 
     /// Inicia un nuevo juego.
     func startGame() {
-        isGameOver = false
-        isPlayingSequence = true
-        
-        // Agrega un delay de 0.6 segundos antes de iniciar el juego
+        resetGame()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.resetGame()
             self.addNextColor()
             self.playSequence()
         }
     }
 
     /// Verifica la elección del usuario.
-    /// - Parameter color: El color que el usuario seleccionó.
     func checkUserChoice(_ color: ColorOption) {
         guard !isPlayingSequence else { return } // Evita interacción durante la secuencia
         userSequence.append(color)
@@ -63,11 +57,10 @@ class GameViewModel: ObservableObject {
     /// Avanza al siguiente nivel.
     func nextLevel() {
         level += 1
+        updateCircleColor()
         addNextColor()
         playSequence()
     }
-
-    // MARK: - Métodos Privados
 
     /// Reinicia el juego a su estado inicial.
     private func resetGame() {
@@ -77,33 +70,36 @@ class GameViewModel: ObservableObject {
         level = 1
         score = 0
         isGameOver = false
-        isPlayingSequence = false
     }
 
-    /// Agrega un color aleatorio a la secuencia del juego.
+    /// Agrega un nuevo color a la secuencia.
     private func addNextColor() {
         colorSequence.append(ColorOption.allCases.randomElement()!)
         userSequence = []
     }
 
-    /// Reproduce la secuencia de colores resaltando cada botón uno por uno.
-    private func playSequence() {
+    /// Reproduce la secuencia de colores generada.
+    func playSequence() {
         isPlayingSequence = true
         currentHighlightedColor = nil
         
         for (index, color) in colorSequence.enumerated() {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 1.0) {
                 self.currentHighlightedColor = color
-                ColorSoundPlayer.shared.playSound(for: color.name)
+                ColorSoundPlayer.shared.playSound(for: color.soundName) // Reproduce el sonido
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.currentHighlightedColor = nil
                     if index == self.colorSequence.count - 1 {
-                        self.isPlayingSequence = false // Finaliza la secuencia
+                        self.isPlayingSequence = false
                     }
                 }
             }
         }
     }
+    
+    /// Actualiza el color del círculo a un color aleatorio.
+    private func updateCircleColor() {
+        let randomColor: [Color] = [.red, .green, .blue, .yellow, .orange, .purple, .pink, .cyan]
+        circleBackgroundColor = randomColor.randomElement() ?? .blue
+    }
 }
-
-
