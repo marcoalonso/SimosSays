@@ -13,7 +13,7 @@ class ColorSoundPlayer {
     private var player: AVAudioPlayer?
 
     func playSound(for color: String) {
-        guard let path = Bundle.main.path(forResource: color, ofType: "mp3") else { return }
+        guard let path = Bundle.main.path(forResource: color, ofType: "wav") else { return }
         let url = URL(fileURLWithPath: path)
 
         do {
