@@ -17,6 +17,7 @@
 
 import SwiftUI
 import AVFoundation
+import UIKit
 
 /// ViewModel que controla la lógica del juego Simon Says.
 class GameViewModel: ObservableObject {
@@ -48,6 +49,7 @@ class GameViewModel: ObservableObject {
             if userSequence.count == colorSequence.count {
                 score += 1
                 isShowingSuccessModal = true // Muestra el modal de éxito
+                triggerHapticFeedback()      // Activa la vibración háptica
             }
         } else {
             isGameOver = true // Termina el juego si hay un error
@@ -101,5 +103,11 @@ class GameViewModel: ObservableObject {
     private func updateCircleColor() {
         let randomColor: [Color] = [.red, .green, .blue, .yellow, .orange, .purple, .pink, .cyan]
         circleBackgroundColor = randomColor.randomElement() ?? .blue
+    }
+    
+    /// Activa la vibración háptica al pasar de nivel.
+    private func triggerHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
     }
 }
